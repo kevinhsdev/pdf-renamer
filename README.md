@@ -52,6 +52,27 @@ Além da produtividade, o objetivo foi reduzir erros humanos e padronizar a estr
 
 ---
 
+## Demonstração
+
+```console
+┌─ PDF Renamer v2 ──────────────────────────────── 12 arquivos ─┐
+│                                                                │
+│  ▣ Pasta de destino: 2026_JOAO_SILVA        [trocar]          │
+│                                                                │
+│  scan_0041.pdf                                                 │
+│    ✦ FORMULARIO DE MATRICULA                                   │
+│  scan_0042.pdf                                                 │
+│    ✦ FICHA MEDICA ESCOLAR                                      │
+│  scan_0043.pdf                                                 │
+│    // digitalizado · manual                                    │
+│                                                                │
+│  Tipo: [FORMULARIO DE MATRICULA]  ✦ sugerido automaticamente   │
+│  > FORMULARIO DE MATRICULA 2026 .pdf          [Salvar]         │
+│                                                                │
+│  ✓ Gravado em 2026_JOAO_SILVA/FORMULARIO DE MATRICULA 2026.pdf │
+└────────────────────────────────────────────────────────────────┘
+```
+
 # 🚀 Tecnologias
 
 <div align="center">
@@ -120,40 +141,46 @@ Caso o documento seja digitalizado sem texto pesquisável, o sistema identifica 
 
 ---
 
-# 📂 Estrutura do projeto
+## Estrutura do projeto
 
-```text
-PDF_Renamer_v2/
-
-├── index.html
-├── css/
-│   └── estilos
-├── javascript/
-│   ├── Interface
-│   ├── PDF Viewer
-│   ├── Classificador
-│   ├── Persistência
-│   └── Sistema de Renomeação
-└── assets/
+```
+renamer/
+├── index.html              # marcação e estrutura da interface
+├── assets/
+│   ├── css/
+│   │   └── style.css       # tokens de tema, layout e componentes
+│   ├── js/
+│   │   └── app.js          # classificador, File System Access, viewer
+│   └── img/
+│       └── logo.png        # logo / favicon
+└── README.md
 ```
 
----
-
-# ▶️ Como utilizar
+## Como executar
 
 ```bash
-# Clone o repositório
-
+# clonar o repositório
 git clone https://github.com/kevinhsdev/pdf-renamer.git
+cd pdf-renamer
+
+# servir localmente (necessário: arquivo local via file:// bloqueia parte das APIs)
+python3 -m http.server 8000
+
+# abrir no navegador
+# http://localhost:8000
+
+# abra em um navegador compatível com a **File System Access API**, como o Google Chrome ou Microsoft Edge.
 ```
 
-Depois basta abrir o arquivo:
+> **Navegador:** a gravação direta em pasta requer Chrome ou Edge. No Firefox a ferramenta funciona normalmente, mas cai no download tradicional.
 
-```
-index.html
-```
+## Melhorias futuras
 
-em um navegador compatível com a **File System Access API**, como o Google Chrome ou Microsoft Edge.
+- [ ] OCR para documentos digitalizados sem camada de texto
+- [ ] Sugestão de pasta do aluno pelo nome lido no documento
+- [ ] Modo lote: aplicar sugestões de todos os arquivos de uma vez
+- [ ] Perfis de tipos por setor (secretaria / financeiro)
+- [ ] Dicionário de palavras-chave editável pela interface
 
 ---
 
