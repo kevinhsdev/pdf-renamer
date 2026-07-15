@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PDF Renamer v2 — Instituto Luterano</title>
+<link rel="icon" type="image/png" href="assets/img/logo.png"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo"></div>
+  <div class="h-title">
+    <h1>PDF Renamer</h1>
+    <span class="h-sep">/</span>
+    <span class="h-sub">prontuários</span>
+    <span class="h-ver">v2.0</span>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div class="h-right">
+    <div class="h-badge" id="h-badge">0 arquivos</div>
+    <button class="h-btn-kb" onclick="toggleKb()" title="Atalhos de teclado">⌨</button>
+    <button class="h-btn" onclick="confirmClear()">⌫ Limpar</button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="s-sec">
+    <div class="s-lbl">Pasta de destino</div>
+    <div class="folder-box" id="folder-box" onclick="pickFolder()">
+      <span class="fb-icon">▣</span>
+      <div class="fb-info">
+        <div class="fb-name" id="fb-name">Escolher pasta…</div>
+        <div class="fb-hint" id="fb-hint">salva direto na pasta do aluno</div>
+      </div>
+      <button class="fb-swap" id="fb-swap" style="display:none" onclick="event.stopPropagation();pickFolder()">trocar</button>
+    </div>
+    <button class="folder-reconnect" id="folder-reconnect" style="display:none" onclick="reconnectFolder()"></button>
+  </div>
+  <div class="s-sec">
+    <div class="s-lbl">Importar</div>
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <span class="dz-icon">📄</span>
+      <p><strong>Clique ou arraste</strong><br>para adicionar PDFs</p>
+    </div>
+    <input type="file" id="file-input" accept="application/pdf,.pdf" multiple/>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="s-total">0</div><div class="stat-l">Total</div></div>
+      <div class="stat"><div class="stat-n g" id="s-done">0</div><div class="stat-l">Salvos</div></div>
+      <div class="stat"><div class="stat-n p" id="s-pend">0</div><div class="stat-l">Fila</div></div>
+    </div>
+  </div>
+  <div class="s-sec" style="gap:8px">
+    <div class="s-lbl">Arquivos</div>
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" id="search-input" type="text" placeholder="Filtrar arquivos..." autocomplete="off"/>
+    </div>
+  </div>
+  <div class="file-list" id="file-list">
+    <div class="file-empty">// nenhum arquivo<br>// carregado ainda</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <div class="empty-state" id="empty-state">
+    <div class="empty-grid" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="empty-msg">
+      // adicione PDFs na barra lateral<br>
+      // a classificação <span class="em-acc">automática</span> sugere o tipo de cada um
+    </div>
+  </div>
+
+  <div class="viewer-wrap" id="viewer-wrap">
+    <div class="viewer-bar">
+      <div class="file-crumb"><span class="crumb-sep" id="crumb-folder">~/</span><span id="file-title">—</span></div>
+      <button class="nav-btn" id="btn-prev" onclick="changePage(-1)">← prev</button>
+      <span class="pg-info" id="pg-info">1 / 1</span>
+      <button class="nav-btn" id="btn-next" onclick="changePage(1)">next →</button>
+      <div class="zoom-wrap">
+        <button class="zoom-btn" onclick="changeZoom(-1)" title="Diminuir zoom">−</button>
+        <span class="zoom-val" id="zoom-val">100%</span>
+        <button class="zoom-btn" onclick="changeZoom(1)" title="Aumentar zoom">+</button>
+        <button class="zoom-btn" onclick="rotatePage()" title="Girar 90° (R)">⟳</button>
+      </div>
+    </div>
+
+    <div class="canvas-area" id="canvas-area">
+      <div class="notext-tag" id="notext-tag">digitalizado · sem texto</div>
+      <div id="loading-wrap">
+        <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+        <div class="loading-txt">// carregando documento...</div>
+      </div>
+      <canvas id="pdf-canvas"></canvas>
+    </div>
+
+    <div class="rename-bar">
+      <div class="chips-head">
+        <span class="chips-lbl">Tipo de documento</span>
+        <div class="auto-pill" id="auto-pill">✦ sugerido automaticamente</div>
+      </div>
+      <div class="chips-row" id="chips-row">
+        <button class="btn-new-chip" id="btn-new-chip" onclick="showChipForm()">+ novo</button>
+        <span class="chip-form" id="chip-form">
+          <input class="chip-fi" id="chip-fi" placeholder="NOME DO TIPO..." maxlength="60"/>
+          <button class="chip-ok" onclick="confirmChip()">Add</button>
+          <button class="chip-cancel" onclick="hideChipForm()">✕</button>
+        </span>
+      </div>
+      <div class="rename-row">
+        <input class="rename-input" type="text" id="new-name" placeholder="Clique num tipo ou digite o nome..."/>
+        <div class="year-ctl">
+          <button class="year-tgl" id="year-tgl" onclick="toggleYear()" title="Incluir ano no nome">
+            <span class="yt-box"></span><span id="year-val">2026</span>
+          </button>
+          <button class="year-step" onclick="stepYear(-1)" title="Ano anterior">‹</button>
+          <button class="year-step" onclick="stepYear(1)" title="Próximo ano">›</button>
+        </div>
+        <span class="suffix">.pdf</span>
+        <button class="btn-save" onclick="saveFile()">Salvar</button>
+        <button class="btn-nxt" id="btn-nxt" onclick="goNext()" style="display:none">próximo →</button>
+      </div>
+      <div class="bar-foot">
+        <span class="hint"><kbd>Enter</kbd> salvar &nbsp;<kbd>Tab</kbd> próximo &nbsp;<kbd>R</kbd> girar &nbsp;<kbd>+</kbd><kbd>−</kbd> zoom &nbsp;<kbd>←</kbd><kbd>→</kbd> página &nbsp;<kbd>Ctrl</kbd><kbd>↑↓</kbd> arquivo</span>
+        <div class="saved-pill" id="saved-pill">✓ Salvo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DONE STATE -->
+  <div class="done-state" id="done-state">
+    <div class="done-ring"><span class="done-check">✓</span></div>
+    <div class="done-title">Concluído!</div>
+    <div class="done-sub" id="done-sub">// todos os arquivos foram renomeados</div>
+    <div class="done-log" id="done-log"></div>
+    <div class="done-btns">
+      <button class="btn-done ghost" onclick="exportLog()">↓ Baixar log (CSV)</button>
+      <button class="btn-done" onclick="resetForNew()">+ Iniciar novo lote</button>
+    </div>
+  </div>
+</main>
+
+<!-- SHORTCUTS PANEL -->
+<div class="kb-overlay" id="kb-overlay" onclick="toggleKb()">
+  <div class="kb-panel" onclick="event.stopPropagation()">
+    <button class="kb-close" onclick="toggleKb()">✕</button>
+    <h2>Atalhos de teclado</h2>
+    <div class="kb-row"><span class="kb-desc">Salvar e avançar</span><div class="kb-keys"><kbd>Enter</kbd></div></div>
+    <div class="kb-row"><span class="kb-desc">Próximo arquivo</span><div class="kb-keys"><kbd>Tab</kbd></div></div>
+    <div class="kb-row"><span class="kb-desc">Arquivo anterior / próximo</span><div class="kb-keys"><kbd>Ctrl</kbd><kbd>↑</kbd><kbd>↓</kbd></div></div>
+    <div class="kb-row"><span class="kb-desc">Página anterior / próxima</span><div class="kb-keys"><kbd>←</kbd><kbd>→</kbd></div></div>
+    <div class="kb-row"><span class="kb-desc">Girar página 90°</span><div class="kb-keys"><kbd>R</kbd></div></div>
+    <div class="kb-row"><span class="kb-desc">Aumentar / diminuir zoom</span><div class="kb-keys"><kbd>+</kbd><kbd>−</kbd></div></div>
+    <div class="kb-row"><span class="kb-desc">Abrir atalhos</span><div class="kb-keys"><kbd>?</kbd></div></div>
+    <div class="kb-row"><span class="kb-desc">Fechar painel</span><div class="kb-keys"><kbd>Esc</kbd></div></div>
+  </div>
+</div>
+
+<!-- CONFIRM CLEAR -->
+<div class="overlay" id="overlay">
+  <div class="dialog">
+    <h2>Limpar lista</h2>
+    <p>Todos os PDFs serão removidos da fila.<br>Arquivos já salvos não serão afetados.</p>
+    <div class="dialog-btns">
+      <button class="btn-cancel" onclick="closeClear()">Cancelar</button>
+      <button class="btn-danger" onclick="clearAll()">Limpar</button>
+    </div>
+  </div>
+</div>
+
+<!-- DUPLICATE DIALOG -->
+<div class="overlay" id="dup-overlay">
+  <div class="dialog warn">
+    <h2>Arquivo já existe</h2>
+    <p id="dup-msg">Já existe um arquivo com este nome na pasta.</p>
+    <div class="dialog-btns">
+      <button class="btn-cancel" onclick="resolveDup('cancel')">Cancelar</button>
+      <button class="btn-ok" onclick="resolveDup('increment')">Salvar como (2)</button>
+      <button class="btn-warn" onclick="resolveDup('replace')">Substituir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>
