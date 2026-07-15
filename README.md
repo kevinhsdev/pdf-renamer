@@ -10,6 +10,7 @@
 
 ![Status](https://img.shields.io/badge/status-em%20uso-success?style=for-the-badge)
 ![Versão](https://img.shields.io/badge/version-2.0-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-6e40c9?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/license-MIT-informational?style=for-the-badge)
 
 > Sistema desenvolvido durante minha atuação como **Jovem Aprendiz** no  
