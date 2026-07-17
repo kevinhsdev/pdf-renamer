@@ -54,9 +54,9 @@ Além da produtividade, o objetivo foi reduzir erros humanos e padronizar a estr
 ## Demonstração
 
 ```console
-┌─ PDF Renamer v2 ──────────────────────────────── 12 arquivos ─┐
+┌─ PDF Renamer v2 ──────────────────────────────── 12 arquivos ──┐
 │                                                                │
-│  ▣ Pasta de destino: 2026_JOAO_SILVA        [trocar]          │
+│  ▣ Pasta de destino: 2026_JOAO_SILVA        [trocar]           │
 │                                                                │
 │  scan_0041.pdf                                                 │
 │    ✦ FORMULARIO DE MATRICULA                                   │
