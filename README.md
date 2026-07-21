@@ -175,11 +175,11 @@ python3 -m http.server 8000
 
 ## Melhorias futuras
 
-- [ ] OCR para documentos digitalizados sem camada de texto
-- [ ] Sugestão de pasta do aluno pelo nome lido no documento
-- [ ] Modo lote: aplicar sugestões de todos os arquivos de uma vez
-- [ ] Perfis de tipos por setor (secretaria / financeiro)
-- [ ] Dicionário de palavras-chave editável pela interface
+- [x] OCR para documentos digitalizados sem camada de texto
+- [x] Sugestão de pasta do aluno pelo nome lido no documento
+- [x] Modo lote: aplicar sugestões de todos os arquivos de uma vez
+- [x] Perfis de tipos por setor (secretaria / financeiro)
+- [x] Dicionário de palavras-chave editável pela interface
 
 ---
 
