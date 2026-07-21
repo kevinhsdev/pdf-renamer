@@ -457,6 +457,97 @@ main{position:relative;z-index:10;display:flex;flex-direction:column;overflow:hi
 .toast.ok{border-color:var(--green-border);color:var(--green);background:var(--green-dim)}
 @keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
+/* ── PERFIL DE SETOR ── */
+.profile-row{display:flex;gap:5px}
+.profile-chip{
+  flex:1;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--surface2);border:1px solid var(--border2);padding:7px 6px;
+  cursor:pointer;color:var(--muted);transition:all .15s;text-align:center;
+}
+.profile-chip:hover{border-color:var(--accent2);color:var(--text)}
+.profile-chip.on{background:var(--accent-glow);color:var(--accent);border-color:var(--accent)}
+
+/* ── LOTE ── */
+.btn-batch{
+  width:100%;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--green-dim);border:1px solid var(--green-border);padding:8px 10px;
+  cursor:pointer;color:var(--green);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-batch:hover:not(:disabled){background:rgba(0,229,160,.18)}
+.btn-batch:disabled{opacity:.3;cursor:default}
+
+/* ── SUGESTÃO DE PASTA ── */
+.folder-sugg{
+  display:none;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:10px;color:var(--pending);
+  border:1px dashed var(--pending-border);background:var(--pending-dim);
+  padding:6px 10px;margin-top:2px;
+}
+.folder-sugg.show{display:flex}
+.folder-sugg b{color:var(--text)}
+.folder-sugg button{
+  margin-left:auto;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--pending-border);padding:3px 8px;cursor:pointer;color:var(--pending);flex-shrink:0;
+}
+.folder-sugg button:hover{background:var(--pending-dim)}
+
+/* ── OCR ── */
+.notext-tag.ocr-btn{cursor:pointer;pointer-events:auto}
+.notext-tag.ocr-btn:hover{background:rgba(255,179,71,.18)}
+.notext-tag.ocr-running{color:var(--accent);border-color:var(--accent2);background:var(--accent-glow2)}
+.notext-tag.ocr-done{color:var(--green);border-color:var(--green-border);background:var(--green-dim)}
+
+/* ── DICIONÁRIO ── */
+.dict-btn{
+  background:transparent;border:1px solid var(--border2);width:20px;height:20px;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);
+  font-size:11px;transition:all .15s;
+}
+.dict-btn:hover{border-color:var(--accent2);color:var(--accent)}
+.dict-panel{background:var(--surface);border:1px solid var(--border2);padding:24px;width:min(560px,92vw);max-height:80vh;overflow-y:auto;position:relative}
+.dict-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent),var(--accent2),transparent)}
+.dict-panel h2{font-family:var(--syne);font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-bottom:6px}
+.dict-panel .dict-intro{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.dict-type{border:1px solid var(--border);background:var(--surface2);padding:10px 12px;margin-bottom:8px}
+.dict-type-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:8px}
+.dict-kws{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.dict-kw{font-family:var(--mono);font-size:10px;background:var(--surface3);border:1px solid var(--border2);padding:3px 8px;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
+.dict-kw.base{color:var(--dim)}
+.dict-kw.custom{color:var(--green);border-color:var(--green-border)}
+.dict-kw button{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:9px;padding:0}
+.dict-kw button:hover{color:var(--danger)}
+.dict-add{display:flex;gap:6px}
+.dict-add input{
+  flex:1;font-family:var(--mono);font-size:11px;padding:5px 9px;
+  border:1px solid var(--border2);background:var(--surface3);color:var(--text);outline:none;
+}
+.dict-add input:focus{border-color:var(--accent)}
+.dict-add button{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;
+  background:var(--accent2);color:var(--accent);border:1px solid var(--accent2);padding:5px 12px;cursor:pointer;
+}
+.dict-add button:hover{background:var(--accent);color:#fff}
+.dict-close-wrap{display:flex;justify-content:flex-end;margin-top:8px}
+
+/* ── TUTORIAL ── */
+.tut-panel{background:var(--surface);border:1px solid var(--border2);padding:0;width:min(600px,92vw);max-height:86vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.tut-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent),var(--green));z-index:1}
+.tut-head{padding:22px 26px 14px;border-bottom:1px solid var(--border)}
+.tut-head h2{font-family:var(--syne);font-size:16px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+.tut-head p{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6}
+.tut-body{padding:18px 26px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.tut-step{display:flex;gap:12px;align-items:flex-start}
+.tut-n{
+  flex-shrink:0;width:22px;height:22px;border:1.5px solid var(--accent2);color:var(--accent);
+  font-family:var(--mono);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+.tut-txt{font-family:var(--mono);font-size:12px;color:var(--text);line-height:1.7}
+.tut-txt b{color:var(--accent)}
+.tut-txt span{color:var(--muted)}
+.tut-foot{padding:16px 26px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tut-check{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:var(--muted);cursor:pointer}
+.tut-check input{accent-color:var(--accent)}
+
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border2)}
 ::-webkit-scrollbar-track{background:transparent}
