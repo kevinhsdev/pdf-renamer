@@ -4,8 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>PDF Renamer v2 — Instituto Luterano</title>
-<link rel="icon" type="image/png" href="assets/logo.png"/>
+<link rel="icon" href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect x='1' y='1' width='24' height='24' fill='none' stroke='%231a5cd4' stroke-width='2'/%3E%3Cpath d='M4.5 4.5H21.5V13.85L13.85 21.5H4.5Z' fill='%234d9fff'/%3E%3C/svg%3E"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -25,6 +26,7 @@
   <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
   <div class="h-right">
     <div class="h-badge" id="h-badge">0 arquivos</div>
+    <button class="h-btn-kb" onclick="openTutorial()" title="Ajuda / tutorial">? Ajuda</button>
     <button class="h-btn-kb" onclick="toggleKb()" title="Atalhos de teclado">⌨</button>
     <button class="h-btn" onclick="confirmClear()">⌫ Limpar</button>
   </div>
@@ -32,6 +34,13 @@
 
 <!-- SIDEBAR -->
 <aside>
+  <div class="s-sec">
+    <div class="s-lbl">Setor</div>
+    <div class="profile-row" id="profile-row">
+      <button class="profile-chip" data-profile="secretaria" onclick="setProfile('secretaria')">Secretaria</button>
+      <button class="profile-chip" data-profile="financeiro" onclick="setProfile('financeiro')">Financeiro</button>
+    </div>
+  </div>
   <div class="s-sec">
     <div class="s-lbl">Pasta de destino</div>
     <div class="folder-box" id="folder-box" onclick="pickFolder()">
@@ -43,6 +52,10 @@
       <button class="fb-swap" id="fb-swap" style="display:none" onclick="event.stopPropagation();pickFolder()">trocar</button>
     </div>
     <button class="folder-reconnect" id="folder-reconnect" style="display:none" onclick="reconnectFolder()"></button>
+    <div class="folder-sugg" id="folder-sugg">
+      📁 Pasta sugerida: <b id="folder-sugg-name">—</b>
+      <button onclick="useSuggestedFolder()">Usar</button>
+    </div>
   </div>
   <div class="s-sec">
     <div class="s-lbl">Importar</div>
@@ -56,6 +69,7 @@
       <div class="stat"><div class="stat-n g" id="s-done">0</div><div class="stat-l">Salvos</div></div>
       <div class="stat"><div class="stat-n p" id="s-pend">0</div><div class="stat-l">Fila</div></div>
     </div>
+    <button class="btn-batch" id="btn-batch" onclick="applyAllSuggestions()" disabled>⚡ Aplicar sugestões em lote</button>
   </div>
   <div class="s-sec" style="gap:8px">
     <div class="s-lbl">Arquivos</div>
@@ -97,7 +111,7 @@
     </div>
 
     <div class="canvas-area" id="canvas-area">
-      <div class="notext-tag" id="notext-tag">digitalizado · sem texto</div>
+      <div class="notext-tag" id="notext-tag" onclick="triggerOcr()">digitalizado · sem texto</div>
       <div id="loading-wrap">
         <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
         <div class="loading-txt">// carregando documento...</div>
@@ -109,6 +123,7 @@
       <div class="chips-head">
         <span class="chips-lbl">Tipo de documento</span>
         <div class="auto-pill" id="auto-pill">✦ sugerido automaticamente</div>
+        <button class="dict-btn" onclick="openDict()" title="Editar dicionário de palavras-chave">⚙</button>
       </div>
       <div class="chips-row" id="chips-row">
         <button class="btn-new-chip" id="btn-new-chip" onclick="showChipForm()">+ novo</button>
@@ -186,15 +201,47 @@
     <p id="dup-msg">Já existe um arquivo com este nome na pasta.</p>
     <div class="dialog-btns">
       <button class="btn-cancel" onclick="resolveDup('cancel')">Cancelar</button>
-      <button class="btn-ok" onclick="resolveDup('increment')">Salvar como (2)</button>
+      <button class="btn-ok" onclick="resolveDup('increment')" id="dup-inc">Salvar como (2)</button>
       <button class="btn-warn" onclick="resolveDup('replace')">Substituir</button>
     </div>
+  </div>
+</div>
+
+<!-- TUTORIAL / BOAS-VINDAS -->
+<div class="overlay" id="tut-overlay">
+  <div class="tut-panel" onclick="event.stopPropagation()">
+    <div class="tut-head">
+      <h2>PDF Renamer · Guia rápido</h2>
+      <p>// ferramenta interna do OASE — Instituto Educacional Luterano<br>// objetivo: renomear e organizar PDFs de prontuários de forma padronizada e rápida</p>
+    </div>
+    <div class="tut-body">
+      <div class="tut-step"><div class="tut-n">1</div><div class="tut-txt"><b>Escolha a pasta de destino</b> — clique em "Escolher pasta…" na barra lateral. Os arquivos renomeados são gravados direto ali, sem precisar baixar e mover manualmente. <span>(funciona no Chrome/Edge; outros navegadores caem no download tradicional)</span></div></div>
+      <div class="tut-step"><div class="tut-n">2</div><div class="tut-txt"><b>Arraste os PDFs</b> para a área de importar, ou clique para selecionar. O sistema já lê o texto de cada um e <b>sugere automaticamente</b> o tipo de documento.</div></div>
+      <div class="tut-step"><div class="tut-n">3</div><div class="tut-txt">Para documentos <b>digitalizados</b> (sem texto, ex: escaneados), clique na etiqueta laranja "digitalizado · sem texto" sobre a página para rodar o <b>OCR</b> e extrair o texto da imagem.</div></div>
+      <div class="tut-step"><div class="tut-n">4</div><div class="tut-txt">Confira ou clique no <b>tipo de documento</b> (chips), ajuste o ano se necessário, e clique em <b>Salvar</b> — ou use <b>Enter</b>. Se o nome do aluno for reconhecido no texto, o sistema sugere a subpasta correspondente.</div></div>
+      <div class="tut-step"><div class="tut-n">5</div><div class="tut-txt">Quando vários arquivos já tiverem sugestão, use <b>"⚡ Aplicar sugestões em lote"</b> na barra lateral para salvar todos de uma vez.</div></div>
+      <div class="tut-step"><div class="tut-n">6</div><div class="tut-txt">Escolha o <b>setor</b> (Secretaria ou Financeiro) no topo da barra lateral para ver só os tipos de documento relevantes ao seu trabalho. Use o ⚙ ao lado de "Tipo de documento" para editar as palavras-chave que a classificação automática usa.</div></div>
+    </div>
+    <div class="tut-foot">
+      <label class="tut-check"><input type="checkbox" id="tut-dont-show" checked/> Não mostrar isso de novo ao abrir</label>
+      <button class="btn-ok" onclick="closeTutorial()">Entendi</button>
+    </div>
+  </div>
+</div>
+
+<!-- DICIONÁRIO DE PALAVRAS-CHAVE -->
+<div class="overlay" id="dict-overlay">
+  <div class="dict-panel" onclick="event.stopPropagation()">
+    <h2>Dicionário de palavras-chave</h2>
+    <div class="dict-intro">// palavras/frases que o sistema procura no texto do PDF para sugerir o tipo automaticamente.<br>// as palavras em cinza são padrão do sistema; as verdes foram adicionadas por vocês e podem ser removidas.</div>
+    <div id="dict-list"></div>
+    <div class="dict-close-wrap"><button class="btn-cancel" onclick="closeDict()">Fechar</button></div>
   </div>
 </div>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script src="js/app.js"></script>
+<script src="js/script.js"></script>
 </body>
 </html>
